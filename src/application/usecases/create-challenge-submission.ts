@@ -1,12 +1,31 @@
 import { Submission } from "../../domain/entities/submission";
+import { ChallengesRepository } from "../repositories/ChallengesRepository";
+import { StudentsRepository } from "../repositories/StudentsRepository";
 
 type CreateChallengeSubmissionRequest = {
   studentId: string;
   challengeId: string;
 }
 
-class CreateChallengeSubmission {
-  execute({ studentId, challengeId }: CreateChallengeSubmissionRequest) {
+export class CreateChallengeSubmission {
+  constructor(
+    private studentsRepository: StudentsRepository,
+    private challengesRepository: ChallengesRepository
+  ){};
+
+  async execute({ studentId, challengeId }: CreateChallengeSubmissionRequest) {
+    const student = await this.studentsRepository.findById(studentId);
+
+    if (!student) {
+      throw new Error('Student does not exits.');
+    }
+
+    const challenge = await this.challengesRepository.findById(challengeId);
+
+    if (!challenge) {
+      throw new Error('Challenge does not exits.');
+    }
+
     const submission = Submission.create({
       studentId, 
       challengeId
